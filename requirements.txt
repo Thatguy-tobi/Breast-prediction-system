@@ -4,3 +4,5 @@ openai
 python-dotenv
 nltk
 numpy
+sklearn
+pickle
