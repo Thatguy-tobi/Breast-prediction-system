@@ -5,5 +5,3 @@ python-dotenv
 nltk
 numpy
 scikit-learn
-pickle
-
