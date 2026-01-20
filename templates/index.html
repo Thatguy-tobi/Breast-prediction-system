@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breast Cancer Prediction</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e83e8c 0%, #9b59b6 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #e83e8c;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #e83e8c 0%, #9b59b6 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 20px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        #result {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        #result.show {
+            display: block;
+        }
+        #result.benign {
+            background: #d4edda;
+            border: 2px solid #28a745;
+        }
+        #result.malignant {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+        }
+        .prediction {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .benign .prediction {
+            color: #28a745;
+        }
+        .malignant .prediction {
+            color: #ff9800;
+        }
+        .probability {
+            font-size: 18px;
+            margin-top: 10px;
+            color: #666;
+        }
+        .disclaimer {
+            font-size: 12px;
+            color: #999;
+            margin-top: 10px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎗️ Breast Cancer Prediction</h1>
+        <p class="subtitle">Enter tumor cell measurements</p>
+        <form id="predictionForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="radius">Mean Radius:</label>
+                    <input type="number" id="radius" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="texture">Mean Texture:</label>
+                    <input type="number" id="texture" step="0.01" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="perimeter">Mean Perimeter:</label>
+                    <input type="number" id="perimeter" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="area">Mean Area:</label>
+                    <input type="number" id="area" step="0.01" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="smoothness">Mean Smoothness:</label>
+                    <input type="number" id="smoothness" step="0.0001" required>
+                </div>
+                <div class="form-group">
+                    <label for="compactness">Mean Compactness:</label>
+                    <input type="number" id="compactness" step="0.0001" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="concavity">Mean Concavity:</label>
+                    <input type="number" id="concavity" step="0.0001" required>
+                </div>
+                <div class="form-group">
+                    <label for="concave_points">Mean Concave Points:</label>
+                    <input type="number" id="concave_points" step="0.0001" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="symmetry">Mean Symmetry:</label>
+                    <input type="number" id="symmetry" step="0.0001" required>
+                </div>
+                <div class="form-group">
+                    <label for="fractal">Mean Fractal Dimension:</label>
+                    <input type="number" id="fractal" step="0.0001" required>
+                </div>
+            </div>
+            <button type="submit">Predict Diagnosis</button>
+        </form>
+        <div id="result">
+            <p>Prediction:</p>
+            <div class="prediction" id="prediction"></div>
+            <div class="probability" id="probability"></div>
+            <div class="disclaimer">This is for educational purposes only. Always consult a medical professional.</div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                radius: parseFloat(document.getElementById('radius').value),
+                texture: parseFloat(document.getElementById('texture').value),
+                perimeter: parseFloat(document.getElementById('perimeter').value),
+                area: parseFloat(document.getElementById('area').value),
+                smoothness: parseFloat(document.getElementById('smoothness').value),
+                compactness: parseFloat(document.getElementById('compactness').value),
+                concavity: parseFloat(document.getElementById('concavity').value),
+                concave_points: parseFloat(document.getElementById('concave_points').value),
+                symmetry: parseFloat(document.getElementById('symmetry').value),
+                fractal: parseFloat(document.getElementById('fractal').value)
+            };
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                const resultDiv = document.getElementById('result');
+                
+                resultDiv.className = data.malignant ? 'show malignant' : 'show benign';
+                document.getElementById('prediction').textContent = 
+                    data.malignant ? 'Malignant (Cancerous)' : 'Benign (Non-Cancerous)';
+                document.getElementById('probability').textContent = 
+                    `Confidence: ${(data.probability * 100).toFixed(1)}%`;
+            } catch (error) {
+                alert('Error making prediction. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>
