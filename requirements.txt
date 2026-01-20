@@ -4,5 +4,6 @@ openai
 python-dotenv
 nltk
 numpy
-sklearn
+scikit-learn
 pickle
+
